@@ -15,6 +15,16 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 
 vi.mock('@opentelemetry/sdk-node');
 vi.mock('../config/config.js');
+vi.mock('net', () => ({
+  createConnection: vi.fn(() => ({
+    on: vi.fn((event, callback) => {
+      if (event === 'connect') {
+        setTimeout(() => callback(), 10);
+      }
+    }),
+    destroy: vi.fn(),
+  })),
+}));
 
 describe('telemetry', () => {
   let mockConfig: Config;
@@ -49,14 +59,22 @@ describe('telemetry', () => {
     }
   });
 
-  it('should initialize the telemetry service', () => {
+  it('should initialize the telemetry service', async () => {
     initializeTelemetry(mockConfig);
+
+    // Wait for async initialization to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     expect(NodeSDK).toHaveBeenCalled();
     expect(mockNodeSdk.start).toHaveBeenCalled();
   });
 
   it('should shutdown the telemetry service', async () => {
     initializeTelemetry(mockConfig);
+
+    // Wait for async initialization to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     await shutdownTelemetry();
 
     expect(mockNodeSdk.shutdown).toHaveBeenCalled();

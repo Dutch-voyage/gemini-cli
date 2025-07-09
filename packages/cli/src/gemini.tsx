@@ -37,6 +37,7 @@ import {
 } from '@google/gemini-cli-core';
 import { validateAuthMethod } from './config/auth.js';
 import { setMaxSizedBoxDebugging } from './ui/components/shared/MaxSizedBox.js';
+import { displayStartupImage } from './ui/StartupImage.js';
 
 function getNodeMemoryArgs(config: Config): string[] {
   const totalMemoryMB = os.totalmem() / (1024 * 1024);
@@ -83,6 +84,7 @@ async function relaunchWithAdditionalArgs(additionalArgs: string[]) {
 }
 
 export async function main() {
+  await displayStartupImage();
   const workspaceRoot = process.cwd();
   const settings = loadSettings(workspaceRoot);
 
